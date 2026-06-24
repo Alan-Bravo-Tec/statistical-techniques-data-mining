@@ -1,0 +1,23 @@
+
+-- CARGA MASIVA DE DATOS (LOAD DATA INFILE)
+-- Tabla destino preparada para recibir datos externos
+CREATE TABLE discounts (
+    id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(50),
+    expired_date DATE,
+    amount DECIMAL(4,2),
+    PRIMARY KEY (id)
+);
+
+-- Importación y Transformación de datos al importar (Ejemplo discount_2.csv)
+-- LOAD DATA INFILE procesa archivos planos directamente en el servidor.
+LOAD DATA INFILE 'c:/tmp/discounts_2.csv'
+INTO TABLE discounts
+FIELDS TERMINATED BY ','           -- Define el delimitador de campos (coma)
+OPTIONALLY ENCLOSED BY '"'         -- Maneja valores de texto entrecomillados
+LINES TERMINATED BY '\r\n'         -- Delimitador de línea para entornos Windows
+IGNORE 1 ROWS                      -- Ignora la primera fila que contiene los encabezados
+-- Mapeo: El segundo valor del CSV se aloja en una variable de usuario (@expired_date)
+(title, @expired_date, amount)
+-- Cláusula SET: Transforma la cadena de texto (mm/dd/aaaa) al formato nativo DATE (aaaa-mm-dd)
+SET expired_date = STR_TO_DATE(@expired_date, '%m/%d/%Y');
